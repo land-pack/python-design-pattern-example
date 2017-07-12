@@ -67,13 +67,10 @@ class HookManager(BaseManager):
 def login_api():
     print 'i am login api...'
 
-print 'install trigger hook -----------------successful ~'
-
 @HookManager.after('hook_after_login')
 def i_do_something():
-    print 'i am collection ....'
+    print 'i am collection all login user information....'
 
-print 'install plugin hook -----------------successful ~'
 
 # Condition Hook Test
 
@@ -81,24 +78,24 @@ class ConditionHook(BaseManager):
     condition_hook = {}
 
 def my_condition(*args, **kwargs):
-    print 'kwargs ...', kwargs
     uid = kwargs['uid']
     if uid =='123':
         return True
     else:
         return False
 
+@HookManager.install('hook_after_login')
 @ConditionHook.install_if('condition_hook', my_condition)
 def i_am_login(uid, age):
-    print 'i am ',uid, 'age',age
+    print 'login with ~~',uid, 'age',age
 
 @ConditionHook.after('condition_hook')
 def after_con_hook():
-    print 'i am do some collection ~~'
-
-
+    print 'i am do some collection only for uid=123'
 
 
 if __name__ == '__main__':
     #login_api()
-    i_am_login(uid='123',age=99)
+    i_am_login(uid='123',age=29)
+    print '=test 2---------------------'
+    i_am_login(uid='833',age=19)
