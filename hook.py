@@ -1,3 +1,5 @@
+from functools import wraps
+
 class BaseManager(object):
 
 
@@ -13,7 +15,9 @@ class BaseManager(object):
         if you want to trigger something by someone function 
         you install it to that function ~ 
         """
+
         def _wrapper(f):
+            @wraps(f)
             def __wrapper(*args, **kwargs):
                 target_f = getattr(cls, name)
                 cls.run(target_f)
@@ -29,6 +33,7 @@ class BaseManager(object):
         you install it to that function ~ 
         """
         def _wrapper(f):
+            @wraps(f)
             def __wrapper(*args, **kwargs):
                 target_f = getattr(cls, name)
                 if condition(*args, **kwargs):
@@ -44,8 +49,10 @@ class BaseManager(object):
     @classmethod
     def after(cls, name):
         def _wrapper(f):
+
             target_f = getattr(cls, name)
             target_f[f.func_name] = f
+            @wraps(f)
             def __wrapper(*args, **kwargs):
                 pass
             return __wrapper
