@@ -21,6 +21,25 @@ class BaseManager(object):
                 return ret
             return __wrapper
         return _wrapper
+    
+    @classmethod
+    def install_if(cls, name, condition):
+        """
+        if you want to trigger something by someone function 
+        you install it to that function ~ 
+        """
+        def _wrapper(f):
+            def __wrapper(*args, **kwargs):
+                target_f = getattr(cls, name)
+                if condition(*args, **kwargs):
+                    cls.run(target_f)
+                else:
+                    print 'condition no true'
+                ret = f(*args, **kwargs)
+                return ret
+            return __wrapper
+        return _wrapper
+
 
     @classmethod
     def after(cls, name):
@@ -49,9 +68,30 @@ def i_do_something():
 
 print 'install plugin hook -----------------successful ~'
 
+# Condition Hook Test
+
+class ConditionHook(BaseManager):
+    condition_hook = {}
+
+def my_condition(*args, **kwargs):
+    print 'kwargs ...', kwargs
+    uid = kwargs['uid']
+    if uid =='123':
+        return True
+    else:
+        return False
+
+@ConditionHook.install_if('condition_hook', my_condition)
+def i_am_login(uid, age):
+    print 'i am ',uid, 'age',age
+
+@ConditionHook.after('condition_hook')
+def after_con_hook():
+    print 'i am do some collection ~~'
 
 
 
 
 if __name__ == '__main__':
-    login_api()
+    #login_api()
+    i_am_login(uid='123',age=99)
