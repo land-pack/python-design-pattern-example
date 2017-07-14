@@ -15,13 +15,10 @@ class PubSub(object):
         if you want to trigger something by someone function 
         you install it to that function ~ 
         """
-        print '='*100
         target_f = getattr(cls, name, None)
         if target_f == None:
-            print 'setattr for cls with name', name
             setattr(cls, name, {})
             target_f = getattr(cls, name, None)
-            print 'the new attr is ', target_f
 
         def _wrapper(f):
             @wraps(f)
@@ -48,7 +45,6 @@ class PubSub(object):
             @wraps(f)
             def __wrapper(*args, **kwargs):
                 target_f = getattr(cls, name, None)
-                print 'target if' , target_f
                 if condition(*args, **kwargs):
                     cls.run(target_f, **kwargs)
                 else:
@@ -62,9 +58,7 @@ class PubSub(object):
     @classmethod
     def sub(cls, name):
         target_f = getattr(cls, name, None)
-        print 'the target function is ', target_f
         if target_f==None:
-            print 'it is working..'
             setattr(cls, name, {})
 
         def _wrapper(f):
@@ -76,18 +70,14 @@ class PubSub(object):
         return _wrapper
 
 
-@PubSub.pub('hook_after_login')
+@PubSub.pub('after_login')
 def login_api():
-    print 'i am login api...'
+    print 'i am login api'
 
-print 'pubsub.hook_after_login', PubSub.hook_after_login
 
-@PubSub.sub('hook_after_login')
+@PubSub.sub('after_login')
 def i_do_something(**public_kwargs):
     print 'i am collection all login user information....'
-
-
-print 'pubsub.hook_after_login', PubSub.hook_after_login
 
 
 def my_condition(*args, **kwargs):
