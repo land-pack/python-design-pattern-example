@@ -4,9 +4,9 @@ from functools import wraps
 class PubSub(object):
 
     @classmethod
-    def run(cls, target_function_list={}, **public_kwargs):
+    def run(cls, target_function_list={}, ret=None, **public_kwargs):
         for f_name, func in target_function_list.items():
-            func(**public_kwargs)
+            func(ret, **public_kwargs)
 
     @classmethod
     def pub(cls, name, condition=lambda **kwargs: True):
@@ -23,9 +23,10 @@ class PubSub(object):
             @wraps(f)
             def __wrapper(*args, **kwargs):
                 target_f = getattr(cls, name, None)
-                if condition(*args, **kwargs):
-                    cls.run(target_f, **kwargs)
                 ret = f(*args, **kwargs)
+                if condition(*args, **kwargs):
+                    cls.run(target_f, ret, **kwargs)
+                
                 return ret
             return __wrapper
         return _wrapper
@@ -52,19 +53,26 @@ def my_condition(*args, **kwargs):
     else:
         return False
 
+@PubSub.pub('collection_channel')
 @PubSub.pub('notify_channel')
 @PubSub.pub('condition_channel', my_condition)
 def i_am_login(uid, age):
     print 'login with ~~', uid, 'age', age
+    return age
 
 
 @PubSub.sub('condition_channel')
-def after_con_hook(**public_kwargs):
+def after_con_hook(ret, **public_kwargs):
     print '[x] query database for uid=123', public_kwargs
 
 @PubSub.sub('notify_channel')
-def notify_everyone(**public_kwargs):
+def notify_everyone(ret, **public_kwargs):
     print '[P] a new one login with', public_kwargs
+
+
+@PubSub.sub('collection_channel')
+def notify_everyone(ret, **public_kwargs):
+    print '[C] a new one login with, collection return value', ret
 
 
 if __name__ == '__main__':
