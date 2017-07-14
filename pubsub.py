@@ -9,7 +9,7 @@ class PubSub(object):
             func(ret, **public_kwargs)
 
     @classmethod
-    def pub(cls, name, condition=lambda **kwargs: True):
+    def pub(cls, name, condition=lambda *args, **kwargs: True):
         """
 
         if you want to trigger something by someone function 
@@ -47,7 +47,7 @@ class PubSub(object):
 
 
 def my_condition(*args, **kwargs):
-    uid = kwargs['uid']
+    uid = kwargs.get('uid')
     if uid == '123':
         return True
     else:
@@ -69,6 +69,10 @@ def after_con_hook(ret, **public_kwargs):
 def notify_everyone(ret, **public_kwargs):
     print '[P] a new one login with', public_kwargs
 
+@PubSub.sub('notify_channel')
+def notify_everyone_2(ret, **public_kwargs):
+    print '[P-2] a new one login with', public_kwargs
+
 
 @PubSub.sub('collection_channel')
 def notify_everyone(ret, **public_kwargs):
@@ -76,5 +80,5 @@ def notify_everyone(ret, **public_kwargs):
 
 
 if __name__ == '__main__':
-    i_am_login(uid='123', age=29)
+    i_am_login('123', age=29)
     i_am_login(uid='833', age=19)
