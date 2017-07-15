@@ -10,23 +10,17 @@ class PubSub(object):
 
     @classmethod
     def pub(cls, name, condition=lambda *args, **kwargs: True):
-        """
-
-        if you want to trigger something by someone function 
-        you install it to that function ~ 
-        """
         target_f = getattr(cls, name, None)
         if target_f == None:
             setattr(cls, name, {})
-
         def _wrapper(f):
             @wraps(f)
             def __wrapper(*args, **kwargs):
                 target_f = getattr(cls, name, None)
+
                 ret = f(*args, **kwargs)
                 if condition(*args, **kwargs):
                     cls.run(target_f, ret, **kwargs)
-                
                 return ret
             return __wrapper
         return _wrapper
@@ -35,9 +29,12 @@ class PubSub(object):
     def sub(cls, name):
         target_f = getattr(cls, name, None)
         if target_f == None:
+            print 'com here'*10
             setattr(cls, name, {})
+            print getattr(cls, name)
 
         def _wrapper(f):
+            target_f = getattr(cls, name, None)
             target_f[f.func_name] = f
             @wraps(f)
             def __wrapper(*args, **kwargs):
@@ -53,6 +50,12 @@ def my_condition(*args, **kwargs):
     else:
         return False
 
+
+
+@PubSub.sub('condition_channel')
+def after_con_hook(ret, **public_kwargs):
+    print '[x] query database for uid=123', public_kwargs
+
 @PubSub.pub('collection_channel')
 @PubSub.pub('notify_channel')
 @PubSub.pub('condition_channel', my_condition)
@@ -61,13 +64,10 @@ def i_am_login(uid, age):
     return age
 
 
-@PubSub.sub('condition_channel')
-def after_con_hook(ret, **public_kwargs):
-    print '[x] query database for uid=123', public_kwargs
-
 @PubSub.sub('notify_channel')
 def notify_everyone(ret, **public_kwargs):
     print '[P] a new one login with', public_kwargs
+
 
 @PubSub.sub('notify_channel')
 def notify_everyone_2(ret, **public_kwargs):
