@@ -75,17 +75,17 @@ def user_login_api(*args, **kwargs):
     age = age if age else args[1]
     uid = uid if uid else args[0]
 
-    print 'login with uid={} age={}'.format(uid, age)
+    print '[ P ] login with uid={} age={}'.format(uid, age)
     return kwargs.get('uid')
 
 
 @PubSub.sub('without_condition_channel_2')
-def abserver_without_condition(ret, *input_args, **input_kwargs):
+def abserver_without_condition_1(ret, *input_args, **input_kwargs):
     print '[ A ] a new user login with', input_kwargs
 
 
 @PubSub.sub('without_condition_channel_2')
-def abserver_without_condition(ret, *input_args, **input_kwargs):
+def abserver_without_condition_2(ret, *input_args, **input_kwargs):
     print '[ A ] a new one login with', input_args
 
 
@@ -94,5 +94,7 @@ def abserver_without_condition(ret, *input_args, **input_kwargs):
     print '[ C ] a new one login with, collection return value', ret
 
 if __name__ == '__main__':
+    print '=' * 15 + 'Test 1' + '='*40
     user_login_api('123', age=29)  # the both `args` and `kwargs`
+    print '=' * 15 + 'Test 2' + '='*40
     user_login_api(uid='833', age=19)  # only `kargs`
